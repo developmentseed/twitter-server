@@ -22,7 +22,7 @@ var query = {
     filePath = './data/tweets.json',
 
     // Use 5+ second intervals or else Twitter will block you
-    delay = 6;
+    delay = 10;
 
 function countdown(seconds, duration) {
     setTimeout(function() {
@@ -48,8 +48,7 @@ function resetInterval(resp) {
         console.log(resp.error);
     }
     else {
-        console.log('\n\nSuccessfully pushed to S3');
-        console.log(resp);
+        console.log('Successfully pushed to S3');
         makeRequestIn(delay);
     }
 }
@@ -58,8 +57,8 @@ function resetInterval(resp) {
 // on data, we write to file, then push to s3.
 // on success, make another call to twitter.
 request.on('data', function(list) {
-    console.log('\n\nLogging parsed response...');
-    console.log(list);
+    // console.log('\n\nLogging parsed response...');
+    // console.log(list);
     console.log('# Tweets received: ' + list.length);
 
     fs.writeFile(filePath, JSON.stringify(list, null, 4), function(err) {
