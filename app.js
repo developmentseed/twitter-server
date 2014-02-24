@@ -1,52 +1,74 @@
-// Requirements
 var fs = require('fs'),
-    credentials = require("./credentials/twitter.js"),
     TwitterSearch = require("./lib/twitterSearch.js"),
     uploadS3 = require('./lib/uploadS3.js'),
     express = require('express'),
     app = express(),
     server = require('http').createServer(app);
 
-var request = new TwitterSearch(credentials),
-    seconds = 10;
+var query = {
+        slug    :'public-radio-people',
+        owner   :'nprnews',
+    },
 
-console.log('Making a GET request every ' + seconds + ' seconds...');
+    // Request takes a param object, which must contain either:
+    // list id or
+    // list slug and owner name
+    // if left blank, returns default list from npr
+    request = new TwitterSearch(query),
 
-setInterval(function() {
-    // just a simple countdown
-    console.log(seconds);
-    seconds = seconds - 1;
-    if (seconds === 0) {
-        seconds = 7;
-        // Request.list takes a param object, which must contain either:
-        // list id or
-        // list slug and owner name
-        // if left blank, returns npr's list of programs
-        request.list();
+    // where tweets get saved
+    filePath = './data/tweets.json',
+
+    // Use 5+ second intervals or else Twitter will block you
+    delay = 6;
+
+function countdown(seconds, duration) {
+    setTimeout(function() {
+        console.log(seconds);
+        seconds = seconds - 1;
+        if (seconds === 0) {
+            request.list();
+        }
+        else {
+            countdown(seconds, duration);
+        }
+    }, 1000);
+}
+
+function makeRequestIn(delay) {
+    console.log('\n\nMaking a GET request in ' + delay + ' seconds...');
+    countdown(delay, delay, request.list);
+}
+
+// called on response from s3 push
+function resetInterval(resp) {
+    if (resp.error) {
+        console.log(resp.error);
     }
-}, 1000);
+    else {
+        console.log('\n\nSuccessfully pushed to S3');
+        console.log(resp);
+        makeRequestIn(delay);
+    }
+}
 
 
-// Basic callback for data
+// on data, we write to file, then push to s3.
+// on success, make another call to twitter.
 request.on('data', function(list) {
-    console.log('Logging parsed response...');
+    console.log('\n\nLogging parsed response...');
     console.log(list);
     console.log('# Tweets received: ' + list.length);
 
-    var filePath = './data/tweets.json';
-
     fs.writeFile(filePath, JSON.stringify(list, null, 4), function(err) {
         if (err) {
-            console.log('err');
+            console.log(err);
         }
         else {
             console.log('JSON saved!');
-
             console.log('writing to S3 now...');
 
-            uploadS3.upload(filePath, function(resp) {
-                console.log(resp);
-            });
+            uploadS3.upload(filePath, resetInterval);
         }
         // end else
     });
@@ -56,3 +78,6 @@ request.on('data', function(list) {
 
 // Start server
 server.listen(3000)
+
+// Make first request
+makeRequestIn(1);
