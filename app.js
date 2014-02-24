@@ -1,6 +1,6 @@
 var fs = require('fs'),
     TwitterSearch = require("./lib/twitterSearch.js"),
-    uploadS3 = require('./lib/uploadS3.js'),
+    S3 = require('./lib/uploadS3.js'),
     express = require('express'),
     app = express(),
     server = require('http').createServer(app);
@@ -15,6 +15,8 @@ var query = {
     // list slug and owner name
     // if left blank, returns default list from npr
     request = new TwitterSearch(query),
+
+    upload = new S3(),
 
     // where tweets get saved
     filePath = './data/tweets.json',
@@ -68,7 +70,7 @@ request.on('data', function(list) {
             console.log('JSON saved!');
             console.log('writing to S3 now...');
 
-            uploadS3.upload(filePath, resetInterval);
+            upload.upload(filePath, resetInterval);
         }
         // end else
     });
