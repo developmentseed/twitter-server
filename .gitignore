@@ -1,6 +1,7 @@
 .DS_Store
 node_modules
 credentials/*
+!credentials/sample_*.json
 data/*.json
 !data/sample.json
 _com
