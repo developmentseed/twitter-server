@@ -7,9 +7,7 @@ You must register as a developer with [Twitter](https://dev.twitter.com/) before
 
 Once you enter your credentials, you can run this application locally.
 
-npm install
-
-node app.js
+npm install; node app.js
 
 Note: this is currently set up to push to S3. You can point it to a local directory, or modify accordingly to point it to a different cloud service.
 
