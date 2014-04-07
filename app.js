@@ -5,16 +5,17 @@ var fs = require('fs'),
     app = express(),
     server = require('http').createServer(app);
 
-var query = {
-        slug    :'public-radio-people',
-        owner   :'nprnews',
+var config = {
+        query: {
+            q: "ebola%20guinea%20%40who%20OR%20%40ocha%20OR%20%40msf"
+        }
     },
 
     // Request takes a param object, which must contain either:
     // list id or
     // list slug and owner name
     // if left blank, returns default list from npr
-    request = new TwitterSearch(query),
+    request = new TwitterSearch(config),
 
     upload = new S3(),
 
