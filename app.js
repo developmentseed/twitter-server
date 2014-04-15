@@ -7,7 +7,7 @@ var fs = require('fs'),
 
 var config = {
         query: {
-            q: "ebola%20guinea%20%40who%20OR%20%40ocha%20OR%20%40msf"
+            q: "ebola%20guinea%20%40who%20OR%20%40ocha%20OR%20%40msf%20-RT"
         }
     },
 
